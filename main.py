@@ -7,46 +7,15 @@ from discord.ext.commands import cooldown, BucketType
 from dislash import *
 from dislash.interactions import *
 
-manifest_non_dependent = '\n```json\n{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}\n```'
-
-manifest_skin = '\n```json\n{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}\n```'
-
-manifest_dependent = '\n```json\n{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}```'
+# skin_pack_json = open("jsons/skin_pack/manifest.json", "r")
+# print(skin_pack_json.read())
+# skin_pack_json.close()
 
 meta_full = '{}{}{}{}{}'
 
 meta_not_full = '{}{}{}'
 
-manifest_non_dependent_meta = '\n```json\n{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}\n```'
-
-manifest_dependent_meta = '\n```json\n{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}\n```'
-
-pack_part1 = '{'
-pack_part2 = '\n	"format_version": 2,'
-pack_part3 = '\n	"header": {'
-pack_part4 = '\n		"name": "{}",'
-pack_part5 = '\n		"description": "{}",'
-pack_part6 = '\n		"uuid": "{}"'
-pack_part7 = ',\n		"version": [\n            1,\n            0,\n            0\n        ]'
-pack_part8 = ',\n		"min_engine_version": [\n            1,\n            13,\n            0\n        ]'
-pack_part9 = '\n	},'
-pack_part10 = '\n	"modules": ['
-pack_part11 = '\n		{'
-pack_part12 = '\n			"type": "{}",'
-pack_part13 = '\n			"uuid": "{}",'
-pack_part14 = '\n			"version": [\n            	1,\n            	0,\n            	0\n	        ]'
-pack_part15 = '\n		}'
-pack_part16 = '\n	]'
-pack_part17 = '\n}'
-
-pack_dp_part1 = ',\n	"dependencies": ['
-pack_dp_part2 = '\n		{'
-pack_dp_part3 = '\n			"version": [\n	            1,\n	            0,\n	            0\n	        ],'
-pack_dp_part4 = '\n			"uuid": "{}"'
-pack_dp_part5 = '\n		}'
-pack_dp_part6 = '\n	]'
-
-pack_meta_part1 = ',\n	"metadata": {'
+pack_meta_part1 = '{'
 pack_meta_part2 = '\n		"authors": {}'
 pack_meta_part3 = ','
 pack_meta_part4 = '\n		"url": "{}"'
@@ -81,30 +50,6 @@ async def on_command_error(ctx, error):
 		cooldown_embed.color = discord.Color.from_rgb(255, 45, 45)
 		cooldown_embed.add_field(name="**Command on cooldown!**", value="**\nTry again after {:.2f}s**".format(error.retry_after))
 		await ctx.send(embed=cooldown_embed)
-
-# @Bot.command()
-# @commands.cooldown(1, 5, commands.BucketType.user)
-# @commands.has_permissions(manage_messages=True)
-# async def embed(ctx):
-# 	diger = 864968994137702440
-# 	await ctx.message.delete()
-# 	embed=discord.Embed()
-# 	embed.color = discord.Color.from_rgb(88, 101, 242)
-# 	embed.title = "Bedrock Mekanik TR'ye Hoş Geldiniz!"
-# 	embed.description = "Bu toplulukta, Komut Blokları ve Eklentiler dahil olmak üzere Bedrock Mekanikleri hakkında tartışıp bilgi sahibi olabilirsiniz."
-# 	embed.add_field(name="Genel Basit Kurallar:", value="\n> × +18 konuşmalara kesinlikle izin verilmez.\n> × Spam veya rahatsız edici davranışlarda bulunmanız yasaktır.\n> × Birden fazla hesap kullanmanız önerilmez.\n> × Her kanalın bi amacı vardır ve bu kanalları da amacı dışında kullanmak yasaktır.\n> × Eğer bi kanalın ne için kullanıldığını bilmiyorsan o kanalın sabitlenmiş mesajlarını veya kanalın açıklamasını okuyabilirsin.", inline = False)
-# 	embed.add_field(name="Bir Konu Hakkında Soru Nasıl Sorulur?", value=f"\n> × Bi soru sorarken; ne yaptığınızı açıklayın, daha sonra neleri başarıp neleri başaramadığınızı yazın.\n> × Eğer bir soru soracaksanız ve hangi kanala uygun olduğunu bilmiyorsanız <#{diger}> kanalında sormanız yeterli olacaktır.", inline = False)
-# 	await ctx.send(embed=embed)
-# 	topluluk = await ctx.send("Topluluk Davet Bağlantısı: https://discord.gg/XyEx5DAfxj")
-# 	await topluluk.send()
-
-# @Bot.command()
-# @commands.cooldown(1, 5, commands.BucketType.user)
-# async def setblock(ctx):
-# 	embed = discord.Embed(color = discord.Color.from_rgb(63, 231, 255))
-# 	embed.title = "Command Info"
-# 	embed.description = "/setblock sadasdsa"
-# 	await ctx.send(embed=embed)
 
 #uuid yazıcı
 @slash.command(name="uuid", description="Generates a UUID")
@@ -176,9 +121,19 @@ async def rp(inter, name=None, description=None, author=None, url=None):
 	rp_embed.timestamp = datetime.datetime.utcnow()
 	rp_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
 	if meta == None:
-		rp_embed.description = manifest_non_dependent.format(pack_part1, pack_part2, pack_part3, pack_part4.format(name), pack_part5.format(description), pack_part6.format(pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(pack_type), pack_part13.format(module_id), pack_part14, pack_part15, pack_part16, pack_part17)
+		doc_manifest = open("manifest_templates/non_dependent.txt", "r")
+		manifest = str(doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		manifest = manifest.replace('şn', name).replace('şd', description).replace('şu1', f"{pack_id}").replace('şt', pack_type).replace('şu2', f"{module_id}")
+		manifest = manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		rp_embed.description = f"```json\n{manifest}\n```"
+		doc_manifest.close()
 	else:
-		rp_embed.description = manifest_non_dependent_meta.format(pack_part1, pack_part2, pack_part3, pack_part4.format(name), pack_part5.format(description), pack_part6.format(pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(pack_type), pack_part13.format(module_id), pack_part14, pack_part15, pack_part16, meta, pack_part17)
+		doc_manifest = open("manifest_templates/non_dependent_meta.txt", "r")
+		manifest = str(doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		manifest = manifest.replace('şn', name).replace('şd', description).replace('şu1', f"{pack_id}").replace('şt', pack_type).replace('şu2', f"{module_id}").replace('şm', meta)
+		manifest = manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		rp_embed.description = f"```json\n{manifest}\n```"
+		doc_manifest.close()
 	await inter.reply(embed=rp_embed)
 
 #BP manifest yazıcı
@@ -228,9 +183,19 @@ async def bp(inter, name=None, description=None, author=None, url=None):
 	bp_embed.timestamp = datetime.datetime.utcnow()
 	bp_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
 	if meta == None:
-		bp_embed.description = manifest_non_dependent.format(pack_part1, pack_part2, pack_part3, pack_part4.format(name), pack_part5.format(description), pack_part6.format(pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(pack_type), pack_part13.format(module_id), pack_part14, pack_part15, pack_part16, pack_part17)
+		doc_manifest = open("manifest_templates/non_dependent.txt", "r")
+		manifest = str(doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		manifest = manifest.replace('şn', name).replace('şd', description).replace('şu1', f"{pack_id}").replace('şt', pack_type).replace('şu2', f"{module_id}")
+		manifest = manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		bp_embed.description = f"```json\n{manifest}\n```"
+		doc_manifest.close()
 	else:
-		bp_embed.description = manifest_non_dependent_meta.format(pack_part1, pack_part2, pack_part3, pack_part4.format(name), pack_part5.format(description), pack_part6.format(pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(pack_type), pack_part13.format(module_id), pack_part14, pack_part15, pack_part16, meta, pack_part17)
+		doc_manifest = open("manifest_templates/non_dependent_meta.txt", "r")
+		manifest = str(doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		manifest = manifest.replace('şn', name).replace('şd', description).replace('şu1', f"{pack_id}").replace('şt', pack_type).replace('şu2', f"{module_id}").replace('şm', meta)
+		manifest = manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		bp_embed.description = f"```json\n{manifest}\n```"
+		doc_manifest.close()
 	await inter.reply(embed=bp_embed)
 
 
@@ -319,16 +284,34 @@ async def addon(inter, bp_name=None, bp_description=None, bp_author=None, bp_url
 	dependent_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
 
 	if bp_meta == None:
-		dependent_embed.add_field(name="Behavior Pack", value=manifest_dependent.format(pack_part1, pack_part2, pack_part3, pack_part4.format(bp_name), pack_part5.format(bp_description), pack_part6.format(bp_pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(bp_pack_type), pack_part13.format(bp_module_id), pack_part14, pack_part15, pack_part16, pack_dp_part1, pack_dp_part2, pack_dp_part3, pack_dp_part4.format(rp_module_id), pack_dp_part5, pack_dp_part6, pack_part17), inline=False)
+		bp_doc_manifest = open("manifest_templates/dependent.txt", "r")
+		bp_manifest = str(bp_doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		bp_manifest = bp_manifest.replace('bşn', bp_name).replace('bşd', bp_description).replace('bşu1', f"{bp_pack_id}").replace('bşt', bp_pack_type).replace('bşu2', f"{bp_module_id}").replace('rşu2', f"{rp_module_id}")
+		bp_manifest = bp_manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		bp = f"```json\n{bp_manifest}\n```"
+		bp_doc_manifest.close()
 	else:
-		dependent_embed.add_field(name="Behavior Pack", value=manifest_dependent_meta.format(pack_part1, pack_part2, pack_part3, pack_part4.format(bp_name), pack_part5.format(bp_description), pack_part6.format(bp_pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(bp_pack_type), pack_part13.format(bp_module_id), pack_part14, pack_part15, pack_part16, pack_dp_part1, pack_dp_part2, pack_dp_part3, pack_dp_part4.format(rp_module_id), pack_dp_part5, pack_dp_part6, bp_meta, pack_part17), inline=False)
-
+		bp_doc_manifest = open("manifest_templates/dependent_meta.txt", "r")
+		bp_manifest = str(bp_doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		bp_manifest = bp_manifest.replace('bşn', bp_name).replace('bşd', bp_description).replace('bşu1', f"{bp_pack_id}").replace('bşt', bp_pack_type).replace('bşu2', f"{bp_module_id}").replace('rşu2', f"{rp_module_id}").replace('bşm', bp_meta)
+		bp_manifest = bp_manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		bp = f"**Behavior Pack**\n```json\n{bp_manifest}\n```"
+		bp_doc_manifest.close()
 	if rp_meta == None:
-		dependent_embed.add_field(name="Resource Pack", value=manifest_non_dependent.format(pack_part1, pack_part2, pack_part3, pack_part4.format(rp_name), pack_part5.format(rp_description), pack_part6.format(rp_pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(rp_pack_type), pack_part13.format(rp_module_id), pack_part14, pack_part15, pack_part16, pack_part17), inline=False)
-
+		rp_doc_manifest = open("manifest_templates/non_dependent.txt", "r")
+		rp_manifest = str(rp_doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		rp_manifest = rp_manifest.replace('şn', rp_name).replace('şd', rp_description).replace('şu1', f"{rp_pack_id}").replace('şt', rp_pack_type).replace('şu2', f"{rp_module_id}")
+		rp_manifest = rp_manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		rp = f"**Resource Pack**\n```json\n{rp_manifest}\n```"
+		rp_doc_manifest.close()
 	else:
-		dependent_embed.add_field(name="Resource Pack", value=manifest_non_dependent.format(pack_part1, pack_part2, pack_part3, pack_part4.format(rp_name), pack_part5.format(rp_description), pack_part6.format(rp_pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(rp_pack_type), pack_part13.format(rp_module_id), pack_part14, pack_part15, pack_part16, rp_meta, pack_part17), inline=False)
-
+		rp_doc_manifest = open("manifest_templates/non_dependent_meta.txt", "r")
+		rp_manifest = str(rp_doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		rp_manifest = rp_manifest.replace('şn', rp_name).replace('şd', rp_description).replace('şu1', f"{rp_pack_id}").replace('şt', rp_pack_type).replace('şu2', f"{rp_module_id}").replace('şm', rp_meta)
+		rp_manifest = rp_manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		rp = f"**Resource Pack**\n```json\n{rp_manifest}\n```"
+		rp_doc_manifest.close()
+	dependent_embed.description = f"{bp}\n{rp}"
 	await inter.reply(embed=dependent_embed)
 
 
@@ -357,7 +340,26 @@ options = [
 			OptionChoice("/fill","/fill"),
 			OptionChoice("/clone","/clone"),
 			OptionChoice("/function","/function"),
-			OptionChoice("/execute","/execute")
+			OptionChoice("/execute","/execute"),
+			OptionChoice("option_1","option_1"),
+			OptionChoice("option_2","option_2"),
+			OptionChoice("option_3","option_3"),
+			OptionChoice("option_4","option_4"),
+			OptionChoice("option_5","option_5"),
+			OptionChoice("option_6","option_6"),
+			OptionChoice("option_7","option_7"),
+			OptionChoice("option_8","option_8"),
+			OptionChoice("option_9","option_9"),
+			OptionChoice("option_10","option_10"),
+			OptionChoice("option_11","option_11"),
+			OptionChoice("option_12","option_12"),
+			OptionChoice("option_13","option_13"),
+			OptionChoice("option_14","option_14"),
+			OptionChoice("option_15","option_15"),
+			OptionChoice("option_16","option_16"),
+			OptionChoice("option_17","option_17"),
+			OptionChoice("option_18","option_18"),
+			OptionChoice("option_19","option_19")
         	]
 		)
 	]
@@ -378,9 +380,10 @@ async def command(inter, command = None):
 		command_int = 5
 	else:
 		await inter.reply("Please put a valid argument!")
-	
+
+	cmd_embed = discord.Embed(title = "Command Info")
+
 	if command_int > 0 and command_int < 6:
-		cmd_embed = discord.Embed(title = "Command Info")
 		cmd_embed.description = f"**{command}**"
 		cmd_embed.set_footer(text=f"Requested in")
 		cmd_embed.timestamp = datetime.datetime.utcnow()

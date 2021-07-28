@@ -1,0 +1,15 @@
+{
+    "format_version": 2,
+    "header": {
+        "name": "şn",
+        "uuid": "şu1",
+        "version": [ 1, 0, 0 ]
+    },
+    "modules": [
+        {
+            "type": "şt",
+            "uuid": "şu2",
+            "version": [ 1, 0, 0 ]
+        }
+    ]
+}

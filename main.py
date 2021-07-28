@@ -52,18 +52,36 @@ async def on_command_error(ctx, error):
 		await ctx.send(embed=cooldown_embed)
 
 #uuid yazıcı
-@slash.command(name="uuid", description="Generates a UUID")
+@slash.command(name="uuid", description="Generates a UUID",
+options=[
+	Option("count", "How many uuids you want!", Type.INTEGER)
+	]
+)
 @commands.cooldown(1, 5, commands.BucketType.user)
-async def get_uuid(inter):
-	myuuid = uuid.uuid4()
+async def get_uuid(inter, count: int = 1):
 	uuid_embed = discord.Embed()
 	uuid_embed.color = discord.Color.from_rgb(63, 231, 255)
 	uuid_embed.title = "UUID"
-	uuid_embed.description = f"{myuuid}"
-	uuid_embed.set_footer(text=f"Requested in")
-	uuid_embed.timestamp = datetime.datetime.utcnow()
-	uuid_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
-	await inter.reply(embed=uuid_embed)
+	if count <= 0:
+		await inter.reply("Count cant be zero or below!", delete_after = 7)
+	elif count > 10:
+		await inter.reply("Count cant be over ten!", delete_after = 7)
+	else:
+		myuuid_list = []
+		for x in range(0, count):
+			myuuid = uuid.uuid4()
+			myuuid_list.append(myuuid)
+		else:
+			myuuid_str = str(myuuid_list)
+			myuuid_str = myuuid_str.replace("'),", "\n\n").replace("UUID('", "").replace("')]", "**").replace("[UUID('", "**").replace("[", "**")
+			uuid_embed.description = f"{myuuid_str}"
+			uuid_embed.set_footer(text=f"Requested in")
+			uuid_embed.timestamp = datetime.datetime.utcnow()
+			uuid_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
+			await inter.reply(embed=uuid_embed)
+
+
+#uuid yazıcı
 
 
 #RP manifest yazıcı
@@ -326,87 +344,14 @@ async def skin(inter, name=None):
 	skin_embed = discord.Embed()
 	skin_embed.title = "Skin pack manifest"
 	skin_embed.color = discord.Color.from_rgb(63, 231, 255)
+	skin_temp = open("manifest_templates/skin_pack.txt", "r")
+	skin_temp_str = str(skin_temp.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+	
 	skin_embed.description = manifest_skin.format(pack_part1, pack_part2, pack_part3, pack_part4.format(name), pack_part6.format(pack_id), pack_part7, pack_part9, pack_part10, pack_part11, pack_part12.format(pack_type), pack_part13.format(module_id), pack_part14, pack_part15, pack_part16, pack_part17)
 	skin_embed.set_footer(text=f"Requested in")
 	skin_embed.timestamp = datetime.datetime.utcnow()
 	skin_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
 	await inter.reply(embed=skin_embed)
-
-
-@slash.command(name="command", description="Shows all commands!",
-options = [
-	Option("command", "Choose a command on the list!", Type.STRING, True, choices=[
-            OptionChoice("/setblock", "/setblock"),
-			OptionChoice("/fill","/fill"),
-			OptionChoice("/clone","/clone"),
-			OptionChoice("/function","/function"),
-			OptionChoice("/execute","/execute"),
-			OptionChoice("option_1","option_1"),
-			OptionChoice("option_2","option_2"),
-			OptionChoice("option_3","option_3"),
-			OptionChoice("option_4","option_4"),
-			OptionChoice("option_5","option_5"),
-			OptionChoice("option_6","option_6"),
-			OptionChoice("option_7","option_7"),
-			OptionChoice("option_8","option_8"),
-			OptionChoice("option_9","option_9"),
-			OptionChoice("option_10","option_10"),
-			OptionChoice("option_11","option_11"),
-			OptionChoice("option_12","option_12"),
-			OptionChoice("option_13","option_13"),
-			OptionChoice("option_14","option_14"),
-			OptionChoice("option_15","option_15"),
-			OptionChoice("option_16","option_16"),
-			OptionChoice("option_17","option_17"),
-			OptionChoice("option_18","option_18"),
-			OptionChoice("option_19","option_19")
-        	]
-		)
-	]
-)
-#commands
-@commands.cooldown(1, 5, commands.BucketType.user)
-async def command(inter, command = None):
-	command_int = 0
-	if command == "/setblock":
-		command_int = 1
-	elif command == "/fill":
-		command_int = 2
-	elif command == "/clone":
-		command_int = 3
-	elif command == "/function":
-		command_int = 4
-	elif command == "/execute":
-		command_int = 5
-	else:
-		await inter.reply("Please put a valid argument!")
-
-	cmd_embed = discord.Embed(title = "Command Info")
-
-	if command_int > 0 and command_int < 6:
-		cmd_embed.description = f"**{command}**"
-		cmd_embed.set_footer(text=f"Requested in")
-		cmd_embed.timestamp = datetime.datetime.utcnow()
-		cmd_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
-
-	if command_int == 1:
-		cmd_embed.add_field(name="Açıklama!", value="Açıklama!", inline=False)
-	elif command_int == 2:
-		cmd_embed.add_field(name="Açıklama!", value="Açıklama!", inline=False)
-	elif command_int == 3:
-		cmd_embed.add_field(name="Açıklama!", value="Açıklama!", inline=False)
-	elif command_int == 4:
-		cmd_embed.add_field(name="Açıklama!", value="Açıklama!", inline=False)
-	elif command_int == 5:
-		cmd_embed.add_field(name="Açıklama!", value="Açıklama!", inline=False)
-	
-
-	if not cmd_embed.description == None:
-		cmd_embed.color = discord.Color.from_rgb(63, 231, 255)
-		await inter.reply(embed=cmd_embed)
-	else:
-		pass		
-
 
 
 @slash.command(name="help", description="Shows all commands!", options = [

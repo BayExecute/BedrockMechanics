@@ -82,30 +82,6 @@ async def on_command_error(ctx, error):
 		cooldown_embed.add_field(name="**Command on cooldown!**", value="**\nTry again after {:.2f}s**".format(error.retry_after))
 		await ctx.send(embed=cooldown_embed)
 
-# @Bot.command()
-# @commands.cooldown(1, 5, commands.BucketType.user)
-# @commands.has_permissions(manage_messages=True)
-# async def embed(ctx):
-# 	diger = 864968994137702440
-# 	await ctx.message.delete()
-# 	embed=discord.Embed()
-# 	embed.color = discord.Color.from_rgb(88, 101, 242)
-# 	embed.title = "Bedrock Mekanik TR'ye Hoş Geldiniz!"
-# 	embed.description = "Bu toplulukta, Komut Blokları ve Eklentiler dahil olmak üzere Bedrock Mekanikleri hakkında tartışıp bilgi sahibi olabilirsiniz."
-# 	embed.add_field(name="Genel Basit Kurallar:", value="\n> × +18 konuşmalara kesinlikle izin verilmez.\n> × Spam veya rahatsız edici davranışlarda bulunmanız yasaktır.\n> × Birden fazla hesap kullanmanız önerilmez.\n> × Her kanalın bi amacı vardır ve bu kanalları da amacı dışında kullanmak yasaktır.\n> × Eğer bi kanalın ne için kullanıldığını bilmiyorsan o kanalın sabitlenmiş mesajlarını veya kanalın açıklamasını okuyabilirsin.", inline = False)
-# 	embed.add_field(name="Bir Konu Hakkında Soru Nasıl Sorulur?", value=f"\n> × Bi soru sorarken; ne yaptığınızı açıklayın, daha sonra neleri başarıp neleri başaramadığınızı yazın.\n> × Eğer bir soru soracaksanız ve hangi kanala uygun olduğunu bilmiyorsanız <#{diger}> kanalında sormanız yeterli olacaktır.", inline = False)
-# 	await ctx.send(embed=embed)
-# 	topluluk = await ctx.send("Topluluk Davet Bağlantısı: https://discord.gg/XyEx5DAfxj")
-# 	await topluluk.send()
-
-# @Bot.command()
-# @commands.cooldown(1, 5, commands.BucketType.user)
-# async def setblock(ctx):
-# 	embed = discord.Embed(color = discord.Color.from_rgb(63, 231, 255))
-# 	embed.title = "Command Info"
-# 	embed.description = "/setblock sadasdsa"
-# 	await ctx.send(embed=embed)
-
 #uuid yazıcı
 @slash.command(name="uuid", description="Generates a UUID")
 @commands.cooldown(1, 5, commands.BucketType.user)
@@ -387,15 +363,15 @@ async def command(inter, command = None):
 		cmd_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
 
 	if command_int == 1:
-		cmd_embed.add_field(name="Açıklama!", value="Açıklama!", inline=False)
+		cmd_embed.add_field(name="Description!", value="Description!", inline=False)
 	elif command_int == 2:
-		cmd_embed.add_field(name="Açıklama!", value="Açıklama!", inline=False)
+		cmd_embed.add_field(name="Description!", value="Description!", inline=False)
 	elif command_int == 3:
-		cmd_embed.add_field(name="Açıklama!", value="Açıklama!", inline=False)
+		cmd_embed.add_field(name="Description!", value="Description!", inline=False)
 	elif command_int == 4:
-		cmd_embed.add_field(name="Açıklama!", value="Açıklama!", inline=False)
+		cmd_embed.add_field(name="Description!", value="Description!", inline=False)
 	elif command_int == 5:
-		cmd_embed.add_field(name="Açıklama!", value="Açıklama!", inline=False)
+		cmd_embed.add_field(name="Description!", value="Description!", inline=False)
 	
 
 	if not cmd_embed.description == None:

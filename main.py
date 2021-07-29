@@ -1,4 +1,4 @@
-import os, discord, string, datetime, time, uuid, dislash, zipfile
+import os, discord, string, datetime, time, uuid, dislash, zipfile, json
 from zipfile import ZipFile
 from discord.ext import commands
 from discord import Client
@@ -7,50 +7,38 @@ from discord.ext.commands import cooldown, BucketType
 from dislash import *
 from dislash.interactions import *
 
-manifest_non_dependent = '\n```json\n{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}\n```'
-
-manifest_skin = '\n```json\n{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}\n```'
-
-manifest_dependent = '\n```json\n{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}```'
+# skin_pack_json = open("jsons/skin_pack/manifest.json", "r")
+# print(skin_pack_json.read())
+# skin_pack_json.close()
 
 meta_full = '{}{}{}{}{}'
 
 meta_not_full = '{}{}{}'
 
-manifest_non_dependent_meta = '\n```json\n{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}\n```'
-
-manifest_dependent_meta = '\n```json\n{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}\n```'
-
-pack_part1 = '{'
-pack_part2 = '\n	"format_version": 2,'
-pack_part3 = '\n	"header": {'
-pack_part4 = '\n		"name": "{}",'
-pack_part5 = '\n		"description": "{}",'
-pack_part6 = '\n		"uuid": "{}"'
-pack_part7 = ',\n		"version": [\n            1,\n            0,\n            0\n        ]'
-pack_part8 = ',\n		"min_engine_version": [\n            1,\n            13,\n            0\n        ]'
-pack_part9 = '\n	},'
-pack_part10 = '\n	"modules": ['
-pack_part11 = '\n		{'
-pack_part12 = '\n			"type": "{}",'
-pack_part13 = '\n			"uuid": "{}",'
-pack_part14 = '\n			"version": [\n            	1,\n            	0,\n            	0\n	        ]'
-pack_part15 = '\n		}'
-pack_part16 = '\n	]'
-pack_part17 = '\n}'
-
-pack_dp_part1 = ',\n	"dependencies": ['
-pack_dp_part2 = '\n		{'
-pack_dp_part3 = '\n			"version": [\n	            1,\n	            0,\n	            0\n	        ],'
-pack_dp_part4 = '\n			"uuid": "{}"'
-pack_dp_part5 = '\n		}'
-pack_dp_part6 = '\n	]'
-
-pack_meta_part1 = ',\n	"metadata": {'
+pack_meta_part1 = '{'
 pack_meta_part2 = '\n		"authors": {}'
 pack_meta_part3 = ','
 pack_meta_part4 = '\n		"url": "{}"'
 pack_meta_part5 ='\n	}'
+
+manifest_base = {
+	"format_version": 2,
+	"header": {
+		"name": None,
+        "description": None,
+        "uuid": None,
+        "version": [ 1, 0, 0 ],
+        "min_engine_version": [ 1, 13, 0 ]
+	},
+	"modules": [
+        {
+            "type": None,
+            "uuid": None,
+            "version": [ 1, 0, 0 ]
+        }
+    ]
+}
+
 
 activity = discord.Game(name='"/help" for Help!')
 
@@ -83,18 +71,36 @@ async def on_command_error(ctx, error):
 		await ctx.send(embed=cooldown_embed)
 
 #uuid yazıcı
-@slash.command(name="uuid", description="Generates a UUID")
+@slash.command(name="uuid", description="Generates a UUID",
+options=[
+	Option("count", "How many uuids you want!", Type.INTEGER)
+	]
+)
 @commands.cooldown(1, 5, commands.BucketType.user)
-async def get_uuid(inter):
-	myuuid = uuid.uuid4()
+async def get_uuid(inter, count: int = 1):
 	uuid_embed = discord.Embed()
 	uuid_embed.color = discord.Color.from_rgb(63, 231, 255)
 	uuid_embed.title = "UUID"
-	uuid_embed.description = f"{myuuid}"
-	uuid_embed.set_footer(text=f"Requested in")
-	uuid_embed.timestamp = datetime.datetime.utcnow()
-	uuid_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
-	await inter.reply(embed=uuid_embed)
+	if count <= 0:
+		await inter.reply("Count cant be zero or below!", delete_after = 7)
+	elif count > 10:
+		await inter.reply("Count cant be over ten!", delete_after = 7)
+	else:
+		myuuid_list = []
+		for x in range(0, count):
+			myuuid = uuid.uuid4()
+			myuuid_list.append(myuuid)
+		else:
+			myuuid_str = str(myuuid_list)
+			myuuid_str = myuuid_str.replace("'),", "\n\n").replace("UUID('", "").replace("')]", "**").replace("[UUID('", "**").replace("[", "**")
+			uuid_embed.description = f"{myuuid_str}"
+			uuid_embed.set_footer(text=f"Requested in")
+			uuid_embed.timestamp = datetime.datetime.utcnow()
+			uuid_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
+			await inter.reply(embed=uuid_embed)
+
+
+#uuid yazıcı
 
 
 #RP manifest yazıcı
@@ -152,9 +158,19 @@ async def rp(inter, name=None, description=None, author=None, url=None):
 	rp_embed.timestamp = datetime.datetime.utcnow()
 	rp_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
 	if meta == None:
-		rp_embed.description = manifest_non_dependent.format(pack_part1, pack_part2, pack_part3, pack_part4.format(name), pack_part5.format(description), pack_part6.format(pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(pack_type), pack_part13.format(module_id), pack_part14, pack_part15, pack_part16, pack_part17)
+		doc_manifest = open("manifest_templates/non_dependent.txt", "r")
+		manifest = str(doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		manifest = manifest.replace('şn', name).replace('şd', description).replace('şu1', f"{pack_id}").replace('şt', pack_type).replace('şu2', f"{module_id}")
+		manifest = manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		rp_embed.description = f"```json\n{manifest}\n```"
+		doc_manifest.close()
 	else:
-		rp_embed.description = manifest_non_dependent_meta.format(pack_part1, pack_part2, pack_part3, pack_part4.format(name), pack_part5.format(description), pack_part6.format(pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(pack_type), pack_part13.format(module_id), pack_part14, pack_part15, pack_part16, meta, pack_part17)
+		doc_manifest = open("manifest_templates/non_dependent_meta.txt", "r")
+		manifest = str(doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		manifest = manifest.replace('şn', name).replace('şd', description).replace('şu1', f"{pack_id}").replace('şt', pack_type).replace('şu2', f"{module_id}").replace('şm', meta)
+		manifest = manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		rp_embed.description = f"```json\n{manifest}\n```"
+		doc_manifest.close()
 	await inter.reply(embed=rp_embed)
 
 #BP manifest yazıcı
@@ -204,9 +220,19 @@ async def bp(inter, name=None, description=None, author=None, url=None):
 	bp_embed.timestamp = datetime.datetime.utcnow()
 	bp_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
 	if meta == None:
-		bp_embed.description = manifest_non_dependent.format(pack_part1, pack_part2, pack_part3, pack_part4.format(name), pack_part5.format(description), pack_part6.format(pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(pack_type), pack_part13.format(module_id), pack_part14, pack_part15, pack_part16, pack_part17)
+		doc_manifest = open("manifest_templates/non_dependent.txt", "r")
+		manifest = str(doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		manifest = manifest.replace('şn', name).replace('şd', description).replace('şu1', f"{pack_id}").replace('şt', pack_type).replace('şu2', f"{module_id}")
+		manifest = manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		bp_embed.description = f"```json\n{manifest}\n```"
+		doc_manifest.close()
 	else:
-		bp_embed.description = manifest_non_dependent_meta.format(pack_part1, pack_part2, pack_part3, pack_part4.format(name), pack_part5.format(description), pack_part6.format(pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(pack_type), pack_part13.format(module_id), pack_part14, pack_part15, pack_part16, meta, pack_part17)
+		doc_manifest = open("manifest_templates/non_dependent_meta.txt", "r")
+		manifest = str(doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		manifest = manifest.replace('şn', name).replace('şd', description).replace('şu1', f"{pack_id}").replace('şt', pack_type).replace('şu2', f"{module_id}").replace('şm', meta)
+		manifest = manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		bp_embed.description = f"```json\n{manifest}\n```"
+		doc_manifest.close()
 	await inter.reply(embed=bp_embed)
 
 
@@ -295,16 +321,34 @@ async def addon(inter, bp_name=None, bp_description=None, bp_author=None, bp_url
 	dependent_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
 
 	if bp_meta == None:
-		dependent_embed.add_field(name="Behavior Pack", value=manifest_dependent.format(pack_part1, pack_part2, pack_part3, pack_part4.format(bp_name), pack_part5.format(bp_description), pack_part6.format(bp_pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(bp_pack_type), pack_part13.format(bp_module_id), pack_part14, pack_part15, pack_part16, pack_dp_part1, pack_dp_part2, pack_dp_part3, pack_dp_part4.format(rp_module_id), pack_dp_part5, pack_dp_part6, pack_part17), inline=False)
+		bp_doc_manifest = open("manifest_templates/dependent.txt", "r")
+		bp_manifest = str(bp_doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		bp_manifest = bp_manifest.replace('bşn', bp_name).replace('bşd', bp_description).replace('bşu1', f"{bp_pack_id}").replace('bşt', bp_pack_type).replace('bşu2', f"{bp_module_id}").replace('rşu2', f"{rp_module_id}")
+		bp_manifest = bp_manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		bp = f"```json\n{bp_manifest}\n```"
+		bp_doc_manifest.close()
 	else:
-		dependent_embed.add_field(name="Behavior Pack", value=manifest_dependent_meta.format(pack_part1, pack_part2, pack_part3, pack_part4.format(bp_name), pack_part5.format(bp_description), pack_part6.format(bp_pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(bp_pack_type), pack_part13.format(bp_module_id), pack_part14, pack_part15, pack_part16, pack_dp_part1, pack_dp_part2, pack_dp_part3, pack_dp_part4.format(rp_module_id), pack_dp_part5, pack_dp_part6, bp_meta, pack_part17), inline=False)
-
+		bp_doc_manifest = open("manifest_templates/dependent_meta.txt", "r")
+		bp_manifest = str(bp_doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		bp_manifest = bp_manifest.replace('bşn', bp_name).replace('bşd', bp_description).replace('bşu1', f"{bp_pack_id}").replace('bşt', bp_pack_type).replace('bşu2', f"{bp_module_id}").replace('rşu2', f"{rp_module_id}").replace('bşm', bp_meta)
+		bp_manifest = bp_manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		bp = f"**Behavior Pack**\n```json\n{bp_manifest}\n```"
+		bp_doc_manifest.close()
 	if rp_meta == None:
-		dependent_embed.add_field(name="Resource Pack", value=manifest_non_dependent.format(pack_part1, pack_part2, pack_part3, pack_part4.format(rp_name), pack_part5.format(rp_description), pack_part6.format(rp_pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(rp_pack_type), pack_part13.format(rp_module_id), pack_part14, pack_part15, pack_part16, pack_part17), inline=False)
-
+		rp_doc_manifest = open("manifest_templates/non_dependent.txt", "r")
+		rp_manifest = str(rp_doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		rp_manifest = rp_manifest.replace('şn', rp_name).replace('şd', rp_description).replace('şu1', f"{rp_pack_id}").replace('şt', rp_pack_type).replace('şu2', f"{rp_module_id}")
+		rp_manifest = rp_manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		rp = f"**Resource Pack**\n```json\n{rp_manifest}\n```"
+		rp_doc_manifest.close()
 	else:
-		dependent_embed.add_field(name="Resource Pack", value=manifest_non_dependent.format(pack_part1, pack_part2, pack_part3, pack_part4.format(rp_name), pack_part5.format(rp_description), pack_part6.format(rp_pack_id), pack_part7, pack_part8, pack_part9, pack_part10, pack_part11, pack_part12.format(rp_pack_type), pack_part13.format(rp_module_id), pack_part14, pack_part15, pack_part16, rp_meta, pack_part17), inline=False)
-
+		rp_doc_manifest = open("manifest_templates/non_dependent_meta.txt", "r")
+		rp_manifest = str(rp_doc_manifest.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+		rp_manifest = rp_manifest.replace('şn', rp_name).replace('şd', rp_description).replace('şu1', f"{rp_pack_id}").replace('şt', rp_pack_type).replace('şu2', f"{rp_module_id}").replace('şm', rp_meta)
+		rp_manifest = rp_manifest.replace("ş5", "\n					").replace("ş4", "\n				").replace("ş3", "\n			").replace("ş2","\n		").replace("ş1", "\n	").replace("ş0", "\n")
+		rp = f"**Resource Pack**\n```json\n{rp_manifest}\n```"
+		rp_doc_manifest.close()
+	dependent_embed.description = f"{bp}\n{rp}"
 	await inter.reply(embed=dependent_embed)
 
 
@@ -319,67 +363,14 @@ async def skin(inter, name=None):
 	skin_embed = discord.Embed()
 	skin_embed.title = "Skin pack manifest"
 	skin_embed.color = discord.Color.from_rgb(63, 231, 255)
-	skin_embed.description = manifest_skin.format(pack_part1, pack_part2, pack_part3, pack_part4.format(name), pack_part6.format(pack_id), pack_part7, pack_part9, pack_part10, pack_part11, pack_part12.format(pack_type), pack_part13.format(module_id), pack_part14, pack_part15, pack_part16, pack_part17)
+	skin_temp = open("manifest_templates/skin_pack.txt", "r")
+	skin_temp_str = str(skin_temp.read()).replace("\n					", "ş5").replace("\n				", "ş4").replace("\n			", "ş3").replace("\n		", "ş2").replace("\n	", "ş1").replace("\n", "ş0")
+	
+	skin_embed.description = skin_temp_str.replace('şn', name).replace('şu1', f"{pack_id}").replace('şt', pack_type).replace('şu2', f"{module_id}")
 	skin_embed.set_footer(text=f"Requested in")
 	skin_embed.timestamp = datetime.datetime.utcnow()
 	skin_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
 	await inter.reply(embed=skin_embed)
-
-
-@slash.command(name="command", description="Shows all commands!",
-options = [
-	Option("command", "Choose a command on the list!", Type.STRING, True, choices=[
-            OptionChoice("/setblock", "/setblock"),
-			OptionChoice("/fill","/fill"),
-			OptionChoice("/clone","/clone"),
-			OptionChoice("/function","/function"),
-			OptionChoice("/execute","/execute")
-        	]
-		)
-	]
-)
-#commands
-@commands.cooldown(1, 5, commands.BucketType.user)
-async def command(inter, command = None):
-	command_int = 0
-	if command == "/setblock":
-		command_int = 1
-	elif command == "/fill":
-		command_int = 2
-	elif command == "/clone":
-		command_int = 3
-	elif command == "/function":
-		command_int = 4
-	elif command == "/execute":
-		command_int = 5
-	else:
-		await inter.reply("Please put a valid argument!")
-	
-	if command_int > 0 and command_int < 6:
-		cmd_embed = discord.Embed(title = "Command Info")
-		cmd_embed.description = f"**{command}**"
-		cmd_embed.set_footer(text=f"Requested in")
-		cmd_embed.timestamp = datetime.datetime.utcnow()
-		cmd_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
-
-	if command_int == 1:
-		cmd_embed.add_field(name="Description!", value="Description!", inline=False)
-	elif command_int == 2:
-		cmd_embed.add_field(name="Description!", value="Description!", inline=False)
-	elif command_int == 3:
-		cmd_embed.add_field(name="Description!", value="Description!", inline=False)
-	elif command_int == 4:
-		cmd_embed.add_field(name="Description!", value="Description!", inline=False)
-	elif command_int == 5:
-		cmd_embed.add_field(name="Description!", value="Description!", inline=False)
-	
-
-	if not cmd_embed.description == None:
-		cmd_embed.color = discord.Color.from_rgb(63, 231, 255)
-		await inter.reply(embed=cmd_embed)
-	else:
-		pass		
-
 
 
 @slash.command(name="help", description="Shows all commands!", options = [

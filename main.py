@@ -21,7 +21,7 @@ async def on_ready():
 
 async def status_task():
 	while True:
-	    await Bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=f"On {len(Bot.guilds)} servers!"),status=discord.Status.idle)
+	    await Bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=f"In a maintance and on {len(Bot.guilds)} servers!"),status=discord.Status.idle)
 	    await asyncio.sleep(10)
 
 @Bot.event
@@ -141,9 +141,13 @@ def manifest(name, description, pack_id, module_id, pack_type, author, url, depe
 		del header["description"], header["min_engine_version"]
 	manifest["header"] = header
 	manifest["modules"] = modules
+
+	if dependency:
+		dependencies = [ { "version": [ 1, 0, 0 ], "uuid": dependency } ]
+		manifest["dependencies"] = dependencies
 	if meta and pack_type != "skin_pack":
 		manifest["metadata"] = meta
-	
+
 	manifest = harf_duzenleyici(manifest)
 	return manifest
 
@@ -200,7 +204,7 @@ async def addon(inter, bp_name=None, bp_description=None, bp_author=None, bp_url
 	bp_type = "data"
 	bp_pack_id = uuid.uuid4()
 	bp_module_id = uuid.uuid4()
-	bp_manifest = manifest(bp_name, bp_description, bp_pack_id, bp_module_id, bp_type, bp_author, bp_url)
+	bp_manifest = manifest(bp_name, bp_description, bp_pack_id, bp_module_id, bp_type, bp_author, bp_url, str(rp_pack_id))
 
 	dependent_embed = discord.Embed(title = "Addon (dependent) manifest", description = f"**Behavior Pack Manifest**\n```json\n{bp_manifest}\n```\n\n**Resource Pack Manifest**\n```json\n{rp_manifest}\n```", color = discord.Color.from_rgb(63, 231, 255), timestamp = datetime.datetime.utcnow())
 	dependent_embed.set_footer(text=f"Requested in")
@@ -228,6 +232,5 @@ async def skin(inter, name=None):
 	await inter.reply("Here it is! (this message will destroy itself after 2 minutes!)", delete_after = 120)
 	await inter.send(file = discord.File('skin_pack/pack.zip'), delete_after = 120)
 	os.remove("skin_pack/pack.zip")
-
 uyan()
 Bot.run(os.getenv('TOKEN'))

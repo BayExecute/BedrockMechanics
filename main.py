@@ -21,7 +21,7 @@ async def on_ready():
 
 async def status_task():
 	while True:
-	    await Bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=f"In a maintance and on {len(Bot.guilds)} servers!"),status=discord.Status.idle)
+	    await Bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=f"On {len(Bot.guilds)} servers!"),status=discord.Status.idle)
 	    await asyncio.sleep(10)
 
 @Bot.event

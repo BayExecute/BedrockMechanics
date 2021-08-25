@@ -21,7 +21,7 @@ async def on_ready():
 
 async def status_task():
 	while True:
-	    await Bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=f"In a maintance and on {len(Bot.guilds)} servers!"),status=discord.Status.idle)
+	    await Bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=f"Helping crafters on {len(Bot.guilds)} servers!"),status=discord.Status.idle)
 	    await asyncio.sleep(10)
 
 @Bot.event
@@ -33,34 +33,34 @@ async def on_command_error(ctx, error):
 		cooldown_embed.add_field(name="**Command on cooldown!**", value="**\nTry again after {:.2f}s**".format(error.retry_after))
 		await ctx.send(embed=cooldown_embed)
 
-unicodes = {
-	r"\u015f": "ş",
-	r"\u015e": "Ş",
-	r"\u00e7": "ç",
-	r"\u00c7": "Ç",
-	r"\u0131": "ı",
-	r"\u0130": "İ",
-	r"\u00f6": "ö",
-	r"\u00d6": "Ö",
-	r"\u011f": "ğ",
-	r"\u011e": "Ğ",
-	r"\u00fc": "ü",
-	r"\u00dc": "Ü"
-}
-unicodes1 = {
-	"ş": r"\u015f",
-	"Ş": r"\u015e",
-	"ç": r"\u00e7",
-	"Ç": r"\u00c7",
-	"ı": r"\u0131",
-	"İ": r"\u0130",
-	"ö": r"\u00f6",
-	"Ö": r"\u00d6",
-	"ğ": r"\u011f",
-	"Ğ": r"\u011e",
-	"ü": r"\u00fc",
-	"Ü": r"\u00dc"
-}
+unicodes = { r"\u015f": "ş", r"\u015e": "Ş", r"\u00e7": "ç", r"\u00c7": "Ç", r"\u0131": "ı", r"\u0130": "İ", r"\u00f6": "ö", r"\u00d6": "Ö", r"\u011f": "ğ", r"\u011e": "Ğ", r"\u00fc": "ü", r"\u00dc": "Ü" }
+unicodes1 = { "ş": r"\u015f", "Ş": r"\u015e", "ç": r"\u00e7", "Ç": r"\u00c7", "ı": r"\u0131", "İ": r"\u0130", "ö": r"\u00f6", "Ö": r"\u00d6", "ğ": r"\u011f", "Ğ": r"\u011e", "ü": r"\u00fc", "Ü": r"\u00dc" }
+
+#feedback
+@slash.command(name="feedback", description="Use this command to communicate with the developer!",
+	options = [
+		Option("message", "Whatever you want to say!", Type.STRING, True),
+		Option("feedback_type", "Type of your feedback!", Type.STRING, 
+			choices=[
+            	OptionChoice("Feedback", "Feedback"),
+            	OptionChoice("Bug Report", "Bug Report"),
+            	OptionChoice("Feature Advice", "Feature Advice")
+			]
+		)
+	]
+)
+@commands.cooldown(1, 5, commands.BucketType.user)
+async def feedback(inter, message, feedback_type: str = "Feedback"):
+	feedback_text = f'Username: "{inter.author.name}#{inter.author.discriminator}", ID:"{inter.author.id}"\nFeedback Type: "{feedback_type}"\nFeedback: "{message}"\n\n'
+
+	feedback_file = open("feedbacks.txt", "a")
+	feedback_file.write(feedback_text)
+	feedback_file.close()
+
+	feedback_embed = discord.Embed(title="Success", description="**Your feedback delivered successfully!**", color = discord.Color.from_rgb(63, 231, 255), timestamp = datetime.datetime.utcnow())
+	feedback_embed.set_footer(text=f"Requested in")
+	feedback_embed.set_author(name=f"{inter.author.name}#{inter.author.discriminator}", icon_url=inter.author.avatar_url)
+	await inter.reply(embed=feedback_embed)
 
 #uuid yazıcı
 @slash.command(name="uuid", description="Generates a UUID",

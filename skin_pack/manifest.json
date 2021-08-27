@@ -1,0 +1,15 @@
+{
+    "format_version": 2,
+    "header": {
+        "name": "BayExecute's Skin pack",
+        "uuid": "cb4cc1b2-2a48-40a1-9318-54b78468b3c6",
+        "version":[ 1, 0, 0 ]
+    },
+    "modules": [
+        {
+            "type": "skin_pack",
+            "uuid": "68447dac-3c0e-47f1-b168-1e025bae556b",
+            "version":[ 1, 0, 0 ]
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+{
+  "skins": [
+      {
+        "localization_name": "example_skin",
+        "geometry": "geometry.humanoid.custom",
+        "texture": "steve.png",
+        "type": "free"
+      }
+    ],
+  "serialize_name": "dasdas",
+  "localization_name": "BedrockMechanics"
+}

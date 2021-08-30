@@ -33,8 +33,8 @@ async def on_command_error(ctx, error):
 		cooldown_embed.add_field(name="**Command on cooldown!**", value="**\nTry again after {:.2f}s**".format(error.retry_after))
 		await ctx.send(embed=cooldown_embed)
 
-unicodes = { r"\u015f": "ş", r"\u015e": "Ş", r"\u00e7": "ç", r"\u00c7": "Ç", r"\u0131": "ı", r"\u0130": "İ", r"\u00f6": "ö", r"\u00d6": "Ö", r"\u011f": "ğ", r"\u011e": "Ğ", r"\u00fc": "ü", r"\u00dc": "Ü" }
-unicodes1 = { "ş": r"\u015f", "Ş": r"\u015e", "ç": r"\u00e7", "Ç": r"\u00c7", "ı": r"\u0131", "İ": r"\u0130", "ö": r"\u00f6", "Ö": r"\u00d6", "ğ": r"\u011f", "Ğ": r"\u011e", "ü": r"\u00fc", "Ü": r"\u00dc" }
+unicodes = [r"\u00e8", r"\u00ea", r"\u011b", r"\u0119", r"\u0119", r"\u0117", r"\u00eb", r"\u00e9", r"\u00fe", r"\u021b", r"\u0165", r"\u00fd", r"\u00f9", r"\u00fb", r"\u0171", r"\u016f", r"\u00fa", r"\u0131", r"\u00f2", r"\u00f4", r"\u00f8", r"\u014d", r"\u00f5", r"\u00f3", r"\u011f", r"\u00fc", r"\u0105", r"\u0103", r"\u00e5", r"\u00e4", r"\u00e3", r"\u00e2", r"\u00e1", r"\u00e0", r"\u00df", r"\u0219", r"\u0161", r"\u015b", r"\u00f0", r"\u010f", r"\u013a", r"\u0142", r"\u013e", r"\u00d7", r"\u015f", r"\u00ec", r"\u00ed", r"\u00ee", r"\u00ef", r"\u00f7", r"\u017a", r"\u017c", r"\u017e", r"\u20ba", r"\u20ac", r"\u00a5", r"\u00a2", r"\u00a3", r"\u0107", r"\u010d", r"\u00f1", r"\u0148", r"\u0144", r"\u00e7", r"\u00f6", r"\u011e", r"\u00dc", r"\u015e", r"\u0130", r"\u00d6", r"\u00c7", r"\u00a9", r"\u2122"]
+unicodes1 = ["è", "ê", "ě", "ę", "ę", "ė", "ë", "é", "þ", "ț", "ť", "ý", "ù", "û", "ű", "ů", "ú", "ı", "ò", "ô", "ø", "ō", "õ", "ó", "ğ", "ü", "ą", "ă", "å", "ä", "ã", "â", "á", "à", "ß", "ș", "š", "ś", "ð", "ď", "ĺ", "ł", "ľ", "×", "ş", "ì", "í", "î", "ï", "÷", "ź", "ż", "ž", "₺", "€", "¥", "¢", "£", "ć", "č", "ñ", "ň", "ń", "ç", "ö", "Ğ", "Ü", "Ş", "İ", "Ö", "Ç", "©", "™"]
 
 #feedback
 @slash.command(name="feedback", description="Use this command to communicate with the developer!",
@@ -116,12 +116,11 @@ def meta_ayarlayici(author, url):
 def harf_duzenleyici(manifest):
 	manifest = json.dumps(manifest, indent=4)
 	manifest = str(manifest).replace('"version": [\n            1,\n            0,\n            0\n        ]', '"version":[ 1, 0, 0 ]').replace('"version": [\n                1,\n                0,\n                0\n            ]', '"version":[ 1, 0, 0 ]').replace('"min_engine_version": [\n            1,\n            13,\n            0\n        ]', '"min_engine_version": [ 1, 13, 0 ]')
-	for i in unicodes1:
-		for x in unicodes:
-			try:
-				manifest = manifest.replace(x, i)
-			except:
-				pass
+	for i in unicodes:
+		try:
+			manifest = manifest.replace(i, unicodes1[unicodes.index(i)])
+		except:
+			pass
 	return manifest
 
 def manifest(name, description, pack_id, module_id, pack_type, author, url, dependency: str = None, user: str = None):

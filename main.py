@@ -113,16 +113,6 @@ def meta_ayarlayici(author, url):
 	else:
 		return None
 
-def harf_duzenleyici(manifest):
-	manifest = json.dumps(manifest, indent=4)
-	manifest = str(manifest).replace('"version": [\n            1,\n            0,\n            0\n        ]', '"version":[ 1, 0, 0 ]').replace('"version": [\n                1,\n                0,\n                0\n            ]', '"version":[ 1, 0, 0 ]').replace('"min_engine_version": [\n            1,\n            13,\n            0\n        ]', '"min_engine_version": [ 1, 13, 0 ]')
-	for i in unicodes:
-		try:
-			manifest = manifest.replace(i, unicodes1[unicodes.index(i)])
-		except:
-			pass
-	return manifest
-
 def manifest(name, description, pack_id, module_id, pack_type, author, url, dependency: str = None, user: str = None):
 	if not pack_type == "skin_pack" and name == None:
 		name = "pack.name"
@@ -147,7 +137,8 @@ def manifest(name, description, pack_id, module_id, pack_type, author, url, depe
 	if meta and pack_type != "skin_pack":
 		manifest["metadata"] = meta
 
-	manifest = harf_duzenleyici(manifest)
+	manifest = json.dumps(manifest, indent=4, ensure_ascii=False)
+	manifest = str(manifest).replace('"version": [\n            1,\n            0,\n            0\n        ]', '"version":[ 1, 0, 0 ]').replace('"version": [\n                1,\n                0,\n                0\n            ]', '"version":[ 1, 0, 0 ]').replace('"min_engine_version": [\n            1,\n            13,\n            0\n        ]', '"min_engine_version": [ 1, 13, 0 ]')
 	return manifest
 
 #RP manifest yazıcı
